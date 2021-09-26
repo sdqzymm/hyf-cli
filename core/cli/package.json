@@ -5,6 +5,7 @@
   "author": "522532683@qq.com <522532683@qq.com>",
   "homepage": "",
   "license": "ISC",
+  "main": "index.js",
   "bin": {
     "hyf": "cli.js"
   },
@@ -24,7 +25,7 @@
   },
   "dependencies": {
     "@hyf-cli/test": "file:../../utils/test",
-    "import-local": "^3.0.2",
+    "import-local": "^2.0.0",
     "npmlog": "^5.0.1"
   }
 }

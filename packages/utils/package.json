@@ -22,5 +22,9 @@
   },
   "bugs": {
     "url": "https://github.com/sdqzymm/hyf-cli/issues"
+  },
+  "gitHead": "428a13a3d247913d768f0fdb55509ea5d0d37f79",
+  "publishConfig": {
+    "access": "public"
   }
 }

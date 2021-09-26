@@ -1,0 +1,30 @@
+{
+  "name": "@hyf-cli/core",
+  "version": "0.0.3",
+  "description": "> TODO: description",
+  "author": "522532683@qq.com <522532683@qq.com>",
+  "homepage": "",
+  "license": "ISC",
+  "bin": {
+    "hyf": "cli.js"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "gitHead": "428a13a3d247913d768f0fdb55509ea5d0d37f79",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@hyf-cli/test": "file:../../utils/test",
+    "import-local": "^3.0.2",
+    "npmlog": "^5.0.1"
+  }
+}

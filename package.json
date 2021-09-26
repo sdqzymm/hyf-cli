@@ -1,6 +1,6 @@
 {
   "name": "hyf-cli",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "hyf-cli 帮助快速开发项目",
   "main": "index.js",
   "scripts": {

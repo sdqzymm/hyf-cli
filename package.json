@@ -1,0 +1,20 @@
+{
+  "name": "hyf-cli",
+  "version": "1.0.0",
+  "description": "hyf-cli 帮助快速开发项目",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cli",
+    "脚手架",
+    "自动发布",
+    "git规范"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  }
+}

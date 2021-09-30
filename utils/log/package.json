@@ -1,5 +1,5 @@
 {
-  "name": "@hyf-cli/test",
+  "name": "@hyf-cli/log",
   "version": "0.0.7",
   "description": "> TODO: description",
   "author": "522532683@qq.com <522532683@qq.com>",
@@ -18,13 +18,26 @@
     "url": "git+https://github.com/sdqzymm/hyf-cli.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "echo \"Error: run tests from root\" && exit 1",
+    "precommit": "lint-staged"
   },
   "bugs": {
     "url": "https://github.com/sdqzymm/hyf-cli/issues"
   },
-  "gitHead": "428a13a3d247913d768f0fdb55509ea5d0d37f79",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "npmlog": "^5.0.1"
+  },
+  "devDependencies": {
+    "lint-staged": "^11.1.2"
+  },
+  "lint-staged": {
+    "*{.ts,.js}":[
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
   }
 }

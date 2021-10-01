@@ -1,6 +1,6 @@
 {
   "name": "@hyf-cli/utils",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "> TODO: description",
   "author": "522532683@qq.com <522532683@qq.com>",
   "homepage": "https://github.com/sdqzymm/hyf-cli#readme",
@@ -31,7 +31,7 @@
     "lint-staged": "^11.1.2"
   },
   "lint-staged": {
-    "*{.ts,.js}":[
+    "*{.ts,.js}": [
       "eslint --fix",
       "prettier --write",
       "git add"

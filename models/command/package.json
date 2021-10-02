@@ -1,5 +1,5 @@
 {
-  "name": "@hyf-cli/init",
+  "name": "@hyf-cli/command",
   "version": "0.0.8",
   "description": "> TODO: description",
   "author": "522532683@qq.com <522532683@qq.com>",
@@ -21,24 +21,14 @@
     "url": "git+https://github.com/sdqzymm/hyf-cli.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1",
-    "precommit": "lint-staged"
+    "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/sdqzymm/hyf-cli/issues"
   },
-  "devDependencies": {
-    "lint-staged": "^11.1.2"
-  },
   "dependencies": {
-    "@hyf-cli/command": "file:../../models/command",
-    "@hyf-cli/log": "file:../../utils/log"
-  },
-  "lint-staged": {
-    "*{.ts,.js}": [
-      "eslint --fix",
-      "prettier --write",
-      "git add"
-    ]
+    "@hyf-cli/log": "file:../../utils/log",
+    "colors": "^1.4.0",
+    "semver": "^7.3.5"
   }
 }

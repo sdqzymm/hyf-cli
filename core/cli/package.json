@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "@hyf-cli/exec": "file:../exec",
-    "@hyf-cli/init": "file:../../commands/init",
     "@hyf-cli/log": "file:../../utils/log",
     "@hyf-cli/npm-info": "file:../../utils/npm-info",
     "colors": "^1.4.0",

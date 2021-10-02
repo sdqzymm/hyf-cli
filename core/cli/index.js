@@ -8,12 +8,10 @@ const userHome = require("user-home");
 const command = require("commander");
 
 const log = require("@hyf-cli/log");
-const init = require("@hyf-cli/init");
 const exec = require("@hyf-cli/exec");
 
 const pkg = require("./package.json");
 const constants = require("./lib/const");
-const { parse } = require("path");
 
 let pathExists;
 const program = new command.Command();
@@ -30,7 +28,6 @@ async function cli() {
 
 async function prepareCli() {
   checkPkgVersion();
-  checkNodeVersion();
   checkRoot();
   checkUserHome();
   checkEnv();
@@ -109,17 +106,6 @@ function registerCommand() {
 
 function checkPkgVersion() {
   log.info("当前cli版本", pkg.version);
-}
-
-function checkNodeVersion() {
-  const curVersion = process.version;
-  const lowestVersion = constants.LOWEST_NODE_VERSION;
-  if (semver.lt(curVersion, lowestVersion)) {
-    throw new Error(
-      colors.red(`hyf-cli 需要安装 v${lowestVersion} 以上版本的node.js`)
-    );
-  }
-  log.info("当前node版本", curVersion);
 }
 
 function checkRoot() {

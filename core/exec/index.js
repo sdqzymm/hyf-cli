@@ -46,7 +46,13 @@ async function exec(...rest) {
   // 获取入口文件
   const rootFile = pkg.getRootFilePath();
   // 执行命令
-  if (rootFile) require(rootFile).apply(null, rest);
+  if (rootFile) {
+    try {
+      require(rootFile).call(null, rest);
+    } catch (e) {
+      log.error(e.message);
+    }
+  }
 }
 
 module.exports = exec;

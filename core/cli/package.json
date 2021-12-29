@@ -12,6 +12,7 @@
     "lib": "lib",
     "test": "__tests__"
   },
+  "main": "index.js",
   "files": [
     "lib"
   ],
@@ -28,11 +29,5 @@
   "dependencies": {
     "@hyf-cli/log": "file:../../utils/log",
     "import-local": "^3.0.3"
-  },
-  "lint-staged": {
-    "*{.ts,.js}": [
-      "prettier --write",
-      "eslint --fix"
-    ]
   }
 }

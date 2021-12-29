@@ -1,6 +1,6 @@
 {
   "name": "@hyf-cli/cli",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "> TODO: description",
   "author": "522532683@qq.com <522532683@qq.com>",
   "homepage": "https://github.com/sdqzymm/hyf-cli/tree/main/core/cli#readme",
@@ -26,8 +26,8 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "import-local": "^3.0.3",
-    "@hyf-cli/log": "file:../../utils/log"
+    "@hyf-cli/log": "file:../../utils/log",
+    "import-local": "^3.0.3"
   },
   "lint-staged": {
     "*{.ts,.js}": [

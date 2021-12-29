@@ -15,5 +15,4 @@ function cli() {
 function checkPkgVersion() {
   const { version, name } = pkg
   console.log(version, name)
-  console.log(path, log)
 }

@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "import-local": "^3.0.3",
-    "log": "file:../../utils/log"
+    "@hyf-cli/log": "file:../../utils/log"
   },
   "lint-staged": {
     "*{.ts,.js}": [

@@ -2,9 +2,7 @@
 
 module.exports = cli
 
-const path = require('path')
-
-const log = require('log')
+const log = require('@hyf-cli/log')
 
 const pkg = require('./package.json')
 
@@ -14,5 +12,5 @@ function cli() {
 
 function checkPkgVersion() {
   const { version, name } = pkg
-  console.log(version, name)
+  log.info(version, name)
 }

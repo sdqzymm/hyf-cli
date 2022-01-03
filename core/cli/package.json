@@ -12,7 +12,6 @@
     "lib": "lib",
     "test": "__tests__"
   },
-  "main": "index.js",
   "files": [
     "lib"
   ],
@@ -24,10 +23,21 @@
     "url": "git@github.com:sdqzymm/hyf-cli.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "echo \"Error: run tests from root\" && exit 1",
+    "build": "webpack"
   },
   "dependencies": {
+    "@hyf-cli/init": "file:../../commands/init",
     "@hyf-cli/log": "file:../../utils/log",
-    "import-local": "^3.0.3"
+    "@hyf-cli/npm-info": "file:../../utils/npm-info",
+    "@hyf-cli/exec": "file:../exec",
+    "commander": "^8.3.0",
+    "dedent": "^0.7.0",
+    "dotenv": "^10.0.0",
+    "import-local": "^3.0.3",
+    "minimist": "^1.2.5",
+    "path-exists": "^5.0.0",
+    "root-check": "^2.0.0",
+    "semver": "^7.3.5"
   }
 }

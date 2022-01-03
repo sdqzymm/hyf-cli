@@ -1,6 +1,7 @@
 # Ignore folders
 /node_modules/**
-**/**/node_modules
+**/**/node_modules/**
+**/**/__tests__/**
 
 # Ignore file
 .eslintrc.js

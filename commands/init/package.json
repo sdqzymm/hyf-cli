@@ -1,9 +1,9 @@
 {
-  "name": "@hyf-cli/log",
-  "version": "1.1.1",
+  "name": "@hyf-cli/init",
+  "version": "1.1.4",
   "description": "> TODO: description",
   "author": "522532683@qq.com <522532683@qq.com>",
-  "homepage": "https://github.com/sdqzymm/hyf-cli/tree/main/utils/log#readme",
+  "homepage": "https://github.com/sdqzymm/hyf-cli/tree/main/commands/init#readme",
   "license": "ISC",
   "main": "lib/index.js",
   "directories": {
@@ -25,11 +25,5 @@
   },
   "bugs": {
     "url": "https://github.com/sdqzymm/hyf-cli/issues"
-  },
-  "devDependencies": {
-    "npmlog": "^6.0.0"
-  },
-  "dependencies": {
-    "colors": "^1.4.0"
   }
 }

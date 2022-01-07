@@ -1,13 +1,17 @@
 'use strict'
 
-module.exports = init
+const Command = require('@hyf-cli/command')
+const log = require('@hyf-cli/log')
 
-function init(projectName, opts) {
-  // TODO
-  console.log(
-    projectName,
-    opts,
-    process.env.CLI_TARGET_PATH,
-    process.env.CLI_LOG_LEVEL
-  )
+class InitCommand extends Command {
+  init() {
+    this.projectName = this._argv[0] ?? ''
+    this.force = !!this._opts.force
+  }
+
+  exec() {
+    log.info('正在执行init命令~~')
+  }
 }
+
+module.exports = InitCommand

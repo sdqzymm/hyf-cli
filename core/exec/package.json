@@ -27,6 +27,7 @@
     "url": "https://github.com/sdqzymm/hyf-cli/issues"
   },
   "dependencies": {
-    "@hyf-cli/package": "file:../../models/package"
+    "@hyf-cli/package": "file:../../models/package",
+    "@hyf-cli/log": "file:../../utils/log"
   }
 }

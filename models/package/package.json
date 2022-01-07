@@ -25,5 +25,13 @@
   },
   "bugs": {
     "url": "https://github.com/sdqzymm/hyf-cli/issues"
+  },
+  "dependencies": {
+    "@hyf-cli/npm-info": "file:../../utils/npm-info",
+    "@hyf-cli/utils": "file:../../utils/utils",
+    "@hyf-cli/log": "file:../../utils/log",
+    "npminstall": "^5.3.1",
+    "path-exists": "^4.0.0",
+    "pkg-dir": "^5.0.0"
   }
 }

@@ -8,18 +8,19 @@ const userHome = require('os').homedir()
 const semver = require('semver')
 const dedent = require('dedent')
 const commander = require('commander')
+const pathExists = require('path-exists').sync
+const rootCheck = require('root-check')
 const log = require('@hyf-cli/log')
-const init = require('@hyf-cli/init')
 const exec = require('@hyf-cli/exec')
+const { writeDotenv, getInputArgs } = require('@hyf-cli/utils')
 
-const {
-  pathExists,
-  rootCheck,
-  writeDotenv,
-  getInputArgs
-} = require('./helpers')
 const pkg = require('../package.json')
 const constants = require('./constants')
+const {
+  registerGlobalOptions,
+  registerCommands,
+  registerHelp
+} = require('./program')
 
 const program = new commander.Command()
 let cliName
@@ -42,41 +43,21 @@ function welcomeToCli() {
 
 async function check() {
   checkNodeVersion()
-  await checkRoot()
-  await checkUserHome()
+  checkRoot()
+  checkUserHome()
   checkEnv()
   await checkVersion()
 }
 
 function registerCommand() {
-  program
-    .name(cliName)
-    .usage('<command> [options]')
-    .version(pkg.version)
-    .option('-d, --debug', '是否开启调试模式', false)
-    .option('-tp, --targetPath <targetPath>', '指定本地调试文件路径', '')
+  // 全局选项
+  registerGlobalOptions(program, cliName, pkg.version, log)
 
-  program
-    .command('init <projectName>')
-    .option('-f, --force', '是否强制初始化项目', false)
-    .action(exec)
+  // 注册命令
+  registerCommands(program, exec)
 
-  // 监听debug模式
-  program.on('option:debug', function () {
-    process.env.CLI_LOG_LEVEL = log.level = 'verbose'
-  })
-
-  // 监听targetPath
-  program.on('option:targetPath', function () {
-    process.env.CLI_TARGET_PATH = this.opts().targetPath
-  })
-
-  // 监听未知命令
-  program.on('command:*', function (operands) {
-    const availableCommands = program.commands.map((cmd) => cmd.name())
-    log.error(`未知的命令 ${operands[0]}`)
-    log.info(`可用命令: ${availableCommands.join(', ')}`)
-  })
+  // 自定义帮助信息
+  registerHelp(program)
 
   program.parse(process.argv)
 
@@ -87,10 +68,11 @@ function registerCommand() {
 }
 
 async function checkRoot() {
-  await rootCheck()
+  rootCheck()
 }
 
 function checkNodeVersion() {
+  log.info('正在检查node版本~~')
   const currentVersion = process.version
   const lowestVersion = constants.LOWEST_NODE_VERSION
   if (semver.lt(currentVersion, lowestVersion)) {
@@ -100,14 +82,16 @@ function checkNodeVersion() {
   }
 }
 
-async function checkUserHome() {
+function checkUserHome() {
   // 检查用户主目录
+  log.info('正在检查用户主目录~~')
   if (!userHome || !pathExists(userHome)) {
     throw new Error('当前登录用户主目录不存在!')
   }
 }
 
 function checkEnv() {
+  log.info('正在检查环境变量~~')
   // 写入userHome目录下的.env文件配置
   writeDotenv(userHome)
   // 获取命令行参数
@@ -124,17 +108,12 @@ function processDefaultEnv(args) {
   process.env.CLI_REGISTRY = process.env.CLI_REGISTRY ?? constants.NPM_REGISTRY
   if (args) {
     // todo
-    // 如果用不到, 删除相关方法和依赖
+    // 如果用不到, 后续删除相关方法和依赖
   }
-  // 在program中监听debug模式
-  // if (args.debug) {
-  //   process.env.CLI_LOG_LEVEL = log.level = 'verbose'
-  // } else {
-  //   process.env.CLI_LOG_LEVEL = 'info'
-  // }
 }
 
 async function checkVersion() {
+  log.info('正在检查脚手架版本~~')
   // 检查是否最新版本, 提示升级
   const { getSemverVersion } = require('@hyf-cli/npm-info')
   const semverVersion = await getSemverVersion(pkg.name, pkg.version)

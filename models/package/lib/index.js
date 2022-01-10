@@ -69,9 +69,9 @@ class Package {
       log.verbose(
         `本地${this.packageName}版本为 ${this.packageVersion} 最新版本为 ${semverVersion}`
       )
-      // 删除旧版本并安装新版本npm
+      // 删除旧版本并安装新版本
       const dir = path.dirname(this.getCacheFilePath())
-      fse.removeSync(dir)
+      fse.remove(dir)
       this.packageVersion = semverVersion
       await this.install()
     } else log.verbose(`本地${this.packageName}为最新版本`)

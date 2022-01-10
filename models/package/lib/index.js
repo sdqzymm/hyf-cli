@@ -58,25 +58,26 @@ class Package {
   }
 
   async update() {
+    log.verbose(`检测到本地已经存在${this.packageName}`)
     const semverVersion = await getSemverVersion(
       this.packageName,
       this.packageVersion
     )
     if (semverVersion) {
       // 更新
-      log.info(
+      log.verbose(
         `本地${this.packageName}版本为 ${this.packageVersion} 最新版本为 ${semverVersion}`
       )
       this.packageVersion = semverVersion
       await this.install()
-    } else log.info(`本地${this.packageName}为最新版本`)
+    } else log.verbose(`本地${this.packageName}为最新版本`)
     // 更新targetPath
     this.getCacheFilePath()
   }
 
   // 获取入口文件
   getRootFilePath() {
-    log.info('正在获取命令入口文件~~')
+    log.verbose('正在获取命令入口文件~~')
     // 1. 获取package.json所在目录
     const dir = pkgDir(this.targetPath)
     if (!dir) return null

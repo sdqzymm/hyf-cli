@@ -42,6 +42,7 @@ function welcomeToCli() {
 }
 
 async function check() {
+  log.info(`正在检查当前环境~~`)
   checkNodeVersion()
   checkRoot()
   checkUserHome()
@@ -50,6 +51,7 @@ async function check() {
 }
 
 function registerCommand() {
+  log.info(`正在初始化 ${cliName} ~~`)
   // 全局选项
   registerGlobalOptions(program, cliName, pkg.version, log)
 
@@ -72,7 +74,6 @@ async function checkRoot() {
 }
 
 function checkNodeVersion() {
-  log.info('正在检查node版本~~')
   const currentVersion = process.version
   const lowestVersion = constants.LOWEST_NODE_VERSION
   if (semver.lt(currentVersion, lowestVersion)) {
@@ -84,14 +85,12 @@ function checkNodeVersion() {
 
 function checkUserHome() {
   // 检查用户主目录
-  log.info('正在检查用户主目录~~')
   if (!userHome || !pathExists(userHome)) {
     throw new Error('当前登录用户主目录不存在!')
   }
 }
 
 function checkEnv() {
-  log.info('正在检查环境变量~~')
   // 写入userHome目录下的.env文件配置
   writeDotenv(userHome)
   // 获取命令行参数
@@ -113,7 +112,6 @@ function processDefaultEnv(args) {
 }
 
 async function checkVersion() {
-  log.info('正在检查脚手架版本~~')
   // 检查是否最新版本, 提示升级
   const { getSemverVersion } = require('@hyf-cli/npm-info')
   const semverVersion = await getSemverVersion(pkg.name, pkg.version)

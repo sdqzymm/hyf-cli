@@ -8,6 +8,7 @@
   "bin": {
     "hyf-cli": "cli.js"
   },
+  "main": "lib/index.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"

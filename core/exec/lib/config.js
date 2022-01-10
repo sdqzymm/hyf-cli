@@ -1,6 +1,5 @@
 const packageMap = {
-  // init: '@hyf-cli/init'
-  init: '@imooc-cli/init'
+  init: '@hyf-cli/init'
 }
 
 const CACHE_DIR = 'dependencies'

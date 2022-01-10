@@ -3,6 +3,7 @@
 const path = require('path')
 const fs = require('fs')
 
+const fse = require('fs-extra')
 const npminstall = require('npminstall')
 const pkgDir = require('pkg-dir').sync
 const pathExists = require('path-exists').sync
@@ -47,7 +48,7 @@ class Package {
     // 在缓存目录中写入一个json文件, 存储包名和版本号的对应关系
     this.writeJson()
     // 更新targetPath
-    this.getCacheFilePath()
+    this.targetPath = this.getCacheFilePath()
   }
 
   exists() {
@@ -68,11 +69,14 @@ class Package {
       log.verbose(
         `本地${this.packageName}版本为 ${this.packageVersion} 最新版本为 ${semverVersion}`
       )
+      // 删除旧版本并安装新版本npm
+      const dir = path.dirname(this.getCacheFilePath())
+      fse.removeSync(dir)
       this.packageVersion = semverVersion
       await this.install()
     } else log.verbose(`本地${this.packageName}为最新版本`)
     // 更新targetPath
-    this.getCacheFilePath()
+    this.targetPath = this.getCacheFilePath()
   }
 
   // 获取入口文件
@@ -115,8 +119,8 @@ class Package {
   }
 
   getCacheFilePath() {
-    // 缓存中对应的包目录格式如下(node_modules后面的是使用npminstall安装默认的格式): c:/Users/admin/hyf-cli/dependencies/node_modules/_@hyf-cli_init@1.1.2@@hyf-cli/init
-    this.targetPath = formatPath(
+    // 缓存中对应的包目录格式如下(node_modules后面的是使用npminstall安装默认的格式): c:/Users/admin/hyf-cli/dependencies/node_modules/_@hyf-cli_init@1.1.2@@hyf-cli_init
+    return formatPath(
       path.resolve(
         this.targetPath,
         'node_modules',

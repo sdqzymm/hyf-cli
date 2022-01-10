@@ -30,6 +30,7 @@
     "@hyf-cli/log": "file:../../utils/log",
     "@hyf-cli/npm-info": "file:../../utils/npm-info",
     "@hyf-cli/utils": "file:../../utils/utils",
+    "fs-extra": "^10.0.0",
     "npminstall": "^5.3.1",
     "path-exists": "^4.0.0",
     "pkg-dir": "^5.0.0"

@@ -26,10 +26,8 @@
   "bugs": {
     "url": "https://github.com/sdqzymm/hyf-cli/issues"
   },
-  "devDependencies": {
-    "npmlog": "^6.0.0"
-  },
   "dependencies": {
-    "colors": "^1.4.0"
+    "npmlog": "^6.0.0",
+    "colors": "1.4.0"
   }
 }

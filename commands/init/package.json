@@ -29,10 +29,16 @@
   "dependencies": {
     "@hyf-cli/command": "file:../../models/command",
     "@hyf-cli/log": "file:../../utils/log",
+    "@hyf-cli/package": "file:../../models/package",
     "@hyf-cli/request": "file:../../utils/request",
+    "@hyf-cli/utils": "file:../../utils/utils",
     "dedent": "^0.7.0",
+    "ejs": "^3.1.6",
     "fs-extra": "^10.0.0",
+    "glob": "^7.2.0",
     "inquirer": "^8.2.0",
+    "ora": "^5.4.1",
+    "param-case": "^2.1.1",
     "semver": "^7.3.5"
   }
 }

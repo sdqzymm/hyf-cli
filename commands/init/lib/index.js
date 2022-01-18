@@ -1,19 +1,30 @@
 'use strict'
-
-const fs = require('fs')
+const path = require('path')
 
 const inquirer = require('inquirer')
-const fse = require('fs-extra')
 const semver = require('semver')
 const dedent = require('dedent')
+const ora = require('ora')
+const paramCase = require('param-case')
+const glob = require('glob')
+const ejs = require('ejs')
+const fse = require('fs-extra')
 const Command = require('@hyf-cli/command')
 const log = require('@hyf-cli/log')
+const Package = require('@hyf-cli/package')
+const { formatPath } = require('@hyf-cli/utils')
 
-const getTemplateApi = require('./getTemplateApi')
-const PROJECT = 'project'
-const COMPONENT = 'component'
-const PROJECT_NAME_REG =
-  /^(?!.+_.*-)(?!.+-.*_)[a-zA-Z]+([-_][a-zA-Z][a-zA-Z\d]*|[a-zA-Z\d])*$/
+const { getTemplateApi, execCommand, isDirEmpty } = require('./helpers')
+const {
+  PROJECT,
+  COMPONENT,
+  PROJECT_NAME_REG,
+  NORMAL,
+  CUSTOM,
+  CWD,
+  FSE,
+  EJS_IGNORE
+} = require('./config')
 
 class InitCommand extends Command {
   init() {
@@ -26,24 +37,28 @@ class InitCommand extends Command {
     // 1. 准备阶段
     const projectInfo = await this.prepare()
     if (projectInfo) {
-      console.log('下载模板')
+      this.projectInfo = projectInfo
       // 2. 下载模板
+      await this.downloadTemplate()
       // 3. 安装模板
-      fse.emptyDirSync(process.cwd())
+      await this.installTemplate()
+      // 4. 同时进行安装依赖, 模板渲染
+      await Promise.all([this.installDependency(), this.ejsRender(EJS_IGNORE)])
+      // 5. 启动项目
+      await this.startProject()
     }
   }
 
   async prepare() {
-    // 获取存在模板信息
-    // const templateList = await getTemplateApi()
-    // console.log(templateList)
-    // if (!templateList || templateList.length === 0) {
-    //   throw new Error('当前不存在任何项目/组件模板, init无法完成')
-    // }
-    // this.templateList = templateList
+    // 获取数据库中的模板信息
+    const templateList = await getTemplateApi()
+    if (!templateList || templateList.length === 0) {
+      throw new Error('当前不存在任何项目/组件模板, init无法完成')
+    }
+    this.templateList = templateList
     // 当前目录不为空, 需要向用户确认
     const localPath = process.cwd()
-    if (!this.isDirEmpty(localPath)) {
+    if (!isDirEmpty(localPath)) {
       let isContinue = false
       if (!this.force) {
         isContinue = (
@@ -65,12 +80,107 @@ class InitCommand extends Command {
           message: '当前文件夹不为空, 请再次确认是否清空当前文件夹并创建项目'
         })
         if (!confirmDelete) return
-        // 我们可以等到实际安装模板之前才去清空目录
-        // fse.emptyDirSync(localPath)
       }
     }
     // 向用户获取项目/组件的基本信息
     return await this.getProjectInfo()
+  }
+
+  async downloadTemplate() {
+    const { template } = this.projectInfo
+    const templateInfo = this.templateList.find(
+      (item) => item.npmName === template
+    )
+    const { name, version, installCommand, startCommand } = (this.templateInfo =
+      templateInfo)
+    const pkg = new Package({
+      packageName: template,
+      packageVersion: version,
+      template: true,
+      installCommand,
+      startCommand
+    })
+    if (!pkg.exists()) {
+      await pkg.install()
+      log.success(`${name} 下载成功`)
+    } else {
+      const isUpdated = await pkg.update()
+      if (isUpdated) {
+        log.success(`${name} 更新成功`)
+      } else {
+        log.info(`本地已存在${name}最新版本`)
+      }
+    }
+    // 保存(更新后的)pkg对象
+    this.pkg = pkg
+  }
+
+  async installTemplate() {
+    if (this.templateInfo) {
+      if (!this.templateInfo.type) {
+        this.templateInfo.type = NORMAL
+      }
+      const type = this.templateInfo.type
+      if (type === NORMAL) {
+        // 标准模板安装
+        await this.installNormalTemplate()
+      } else if (type === CUSTOM) {
+        // 自定义模板安装
+        await this.installCustomTemplate()
+      } else {
+        throw new Error(`无法识别的模板类型 ${type}`)
+      }
+    } else {
+      throw new Error('模板信息不存在')
+    }
+  }
+
+  async ejsRender(ignore) {
+    return new Promise((resolve, reject) => {
+      glob(
+        '**',
+        {
+          cwd: CWD,
+          nodir: true,
+          absolute: true,
+          ignore
+        },
+        async (err, files) => {
+          if (err) reject(err)
+          await Promise.all(
+            files.map((file) => {
+              ejs
+                .renderFile(file, this.projectInfo)
+                .then((res) => fse.writeFileSync(file, res))
+            })
+          ).catch((e) => reject(e))
+          resolve()
+        }
+      )
+    })
+  }
+
+  async installDependency() {
+    let { installCommand } = this.pkg
+    if (!installCommand) {
+      installCommand = 'npm install'
+    }
+    await execCommand(installCommand, {
+      CWD,
+      stdio: 'inherit'
+    })
+    log.success('依赖安装成功')
+  }
+
+  async startProject() {
+    let { startCommand } = this.pkg
+    if (!startCommand) {
+      startCommand = 'npm run serve'
+    }
+    await execCommand(startCommand, {
+      CWD,
+      stdio: 'inherit'
+    })
   }
 
   async getProjectInfo() {
@@ -105,7 +215,7 @@ class InitCommand extends Command {
                 3. 尾字符必须为英文字母或数字
                 4. -, _后面必须跟英文字母且两者不能同时出现
                 举例:
-                    a a1 a-b a_b a-b-c a-b1-c1 a_b1_c1`
+                    a a1 abc a-b a_b a-b-c a-b1-c1 a_b1_c1`
                 )
                 return
               }
@@ -113,7 +223,7 @@ class InitCommand extends Command {
             }, 0)
           },
           filter: (v) => {
-            return v
+            return paramCase(v)
           }
         },
         {
@@ -135,13 +245,13 @@ class InitCommand extends Command {
             const version = semver.valid(v)
             if (version) return version
           }
+        },
+        {
+          type: 'list',
+          name: 'template',
+          message: '请选择项目模板',
+          choices: this.createTemplateChoices()
         }
-        // {
-        //   type: 'list',
-        //   name: 'template',
-        //   message: '请选择项目模板',
-        //   choices: this.createTemplateChoices()
-        // }
       ])
     } else {
       // 3. 获取组件的基本信息
@@ -158,12 +268,33 @@ class InitCommand extends Command {
     }))
   }
 
-  isDirEmpty(dir) {
-    let fileList = fs.readdirSync(dir)
-    // 当dir目录下只有node_modules, 可以认为是毫无作用的, 我们也当成空目录
-    const excludeList = ['node_modules']
-    fileList = fileList.filter((file) => !excludeList.includes(file))
-    return fileList.length === 0
+  async installNormalTemplate() {
+    // 将我们下载的标准模板中的template文件夹中的内容全部拷贝到项目根目录(当前目录)
+    const name = this.templateInfo.name
+    const templatePath = formatPath(
+      path.resolve(this.pkg.targetPath, 'template')
+    )
+    const spinner = ora(`正在安装${name}`).start()
+    // 我们要起一个子进程去执行, 要重新引入fs-extra(因为子进程有自己的资源, 父进程require的模块是不起作用的)
+    const code = this.getCode(templatePath, CWD, FSE)
+    const installTemplateCommand = ['node', '-e', code]
+    await execCommand(
+      installTemplateCommand,
+      {
+        CWD
+      },
+      () => {
+        spinner.fail(`${name}安装失败`)
+      },
+      false // 这个命令是写在程序中的, 无需校验白名单
+    )
+    spinner.succeed(`${name}安装成功`)
+  }
+
+  async installCustomTemplate() {}
+
+  getCode(templatePath, targetPath, fse) {
+    return `const fse = require('${fse}');fse.emptyDirSync('${targetPath}');fse.copySync('${templatePath}', '${targetPath}')`
   }
 }
 

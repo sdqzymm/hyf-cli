@@ -5,6 +5,7 @@ const fs = require('fs')
 
 const fse = require('fs-extra')
 const npminstall = require('npminstall')
+const semver = require('semver')
 const pkgDir = require('pkg-dir').sync
 const pathExists = require('path-exists').sync
 const log = require('@hyf-cli/log')
@@ -12,6 +13,8 @@ const { isPlainObject, formatPath } = require('@hyf-cli/utils')
 const { getSemverVersion, getLatestVersion } = require('@hyf-cli/npm-info')
 
 const JSON_FILE = 'cli.json'
+const DEPENDENCE_CACHE = 'dependencies'
+const TEMPLATE_CACHE = 'templates'
 class Package {
   constructor(options) {
     if (!options) {
@@ -20,13 +23,23 @@ class Package {
     if (!isPlainObject(options)) {
       throw new Error('Package类的options参数必须为对象')
     }
-    // options中属性如下:
-    // packageName: 包名
     // flag: true表示使用指定目录下的包, false表示使用本地缓存目录下的包(从远程安装或更新到缓存目录)
-    // targetPath: flag为true表示指定目录, false表示缓存目录
+    this.flag = true
+    // options中需要用到的属性如下:
+    // packageName: 包名, 必传
+    // targetPath: 传表示使用指定目录,flag为true, 不传表示使用缓存目录, flag为false
+    // template: true表示该包为模板
+    // packageVersion: 版本号,
     Object.assign(this, options)
-    // packageVersion: 版本号
-    this.packageVersion = this.getCurrentVersion()
+    if (!this.targetPath) {
+      if (this.template) {
+        this.targetPath = path.resolve(process.env.CLI_PATH, TEMPLATE_CACHE)
+      } else {
+        this.targetPath = path.resolve(process.env.CLI_PATH, DEPENDENCE_CACHE)
+      }
+      this.flag = false
+      this.packageVersion = this.packageVersion ?? this.getCacheVersion()
+    }
   }
 
   async install() {
@@ -53,13 +66,20 @@ class Package {
 
   exists() {
     if (!this.flag) {
-      return !!this.packageVersion
+      if (!this.packageVersion) return false
+      const cacheVersion = this.getCacheVersion() ?? '0.0.0'
+      if (semver.lt(this.packageVersion, cacheVersion)) {
+        this.isCache = true // 表示本地已有的版本大于指定的版本
+        this.packageVersion = cacheVersion
+      }
+      return pathExists(this.getCacheFilePath())
     }
     return pathExists(this.targetPath)
   }
 
   async update() {
-    log.verbose(`检测到本地已经存在${this.packageName}`)
+    log.verbose(`本地已经存在${this.packageName}`)
+    let isUpdated = true
     const semverVersion = await getSemverVersion(
       this.packageName,
       this.packageVersion
@@ -67,16 +87,25 @@ class Package {
     if (semverVersion) {
       // 更新
       log.verbose(
-        `本地${this.packageName}版本为 ${this.packageVersion} 最新版本为 ${semverVersion}`
+        `${this.packageName}最新版本为 ${semverVersion} 将下载最新版本使用`
       )
       // 删除旧版本并安装新版本
       const dir = path.dirname(this.getCacheFilePath())
       fse.remove(dir)
       this.packageVersion = semverVersion
       await this.install()
-    } else log.verbose(`本地${this.packageName}为最新版本`)
-    // 更新targetPath
-    this.targetPath = this.getCacheFilePath()
+    } else {
+      log.verbose(`本地${this.packageName}为最新版本`)
+      if (this.isCache) {
+        log.verbose(
+          `${this.packageName}本地版本 ${this.packageVersion} 已经高于指定版本, 将使用本地版本`
+        )
+      }
+      isUpdated = false
+      // 更新targetPath
+      this.targetPath = this.getCacheFilePath()
+    }
+    return isUpdated
   }
 
   // 获取入口文件
@@ -110,7 +139,7 @@ class Package {
     fs.writeFileSync(jsonFile, JSON.stringify(data))
   }
 
-  getCurrentVersion() {
+  getCacheVersion() {
     // 从缓存目录下的cli.json文件中获取本地版本号
     const jsonFile = path.resolve(this.targetPath, JSON_FILE)
     if (!pathExists(jsonFile)) return null
@@ -119,7 +148,7 @@ class Package {
   }
 
   getCacheFilePath() {
-    // 缓存中对应的包目录格式如下(node_modules后面的是使用npminstall安装默认的格式): c:/Users/admin/hyf-cli/dependencies/node_modules/_@hyf-cli_init@1.1.2@@hyf-cli_init
+    // 缓存中对应的包目录格式如下(node_modules后面的是使用npminstall安装默认的格式): c:/Users/admin/hyf-cli/dependencies/node_modules/_@hyf-cli_init@1.1.2@@hyf-cli\init
     return formatPath(
       path.resolve(
         this.targetPath,

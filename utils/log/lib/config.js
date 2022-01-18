@@ -1,6 +1,6 @@
 function processConfig(log) {
   // 设置打印级别, 默认info
-  log.level = process.env.LOG_LEVEL ?? 'info'
+  log.level = process.env.CLI_LOG_LEVEL ?? 'info'
 
   // 设置heading和heading样式
   log.heading = 'hyf'

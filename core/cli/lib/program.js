@@ -26,6 +26,7 @@ function registerGlobalOptions(program, name, version, log) {
 
 function registerCommands(program, exec) {
   registerInitCommand(program, exec)
+  // 注册其他命令
 }
 
 function registerHelp(program) {
@@ -37,9 +38,9 @@ function registerHelp(program) {
 function registerInitCommand(program, exec) {
   program
     .command('init')
-    .usage('<projectName> [options]')
+    .usage('[projectName] [options]')
     .description('初始化项目或组件')
-    .argument('<projectName>', '项目或组件名称')
+    .argument('[projectName]', '项目或组件名称')
     .option('-f, --force', '是否强制初始化项目或组件', false)
     .action(exec)
 }

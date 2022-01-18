@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@hyf-cli/log": "file:../../utils/log",
+    "@hyf-cli/utils": "file:../../utils/utils",
     "@hyf-cli/package": "file:../../models/package"
   }
 }

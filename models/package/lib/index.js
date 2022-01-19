@@ -25,12 +25,16 @@ class Package {
     }
     // flag: true表示使用指定目录下的包, false表示使用本地缓存目录下的包(从远程安装或更新到缓存目录)
     this.flag = true
-    // options中需要用到的属性如下:
+    // options中重要的属性如下:
     // packageName: 包名, 必传
     // targetPath: 传表示使用指定目录,flag为true, 不传表示使用缓存目录, flag为false
     // template: true表示该包为模板
-    // packageVersion: 版本号,
+    // packageVersion: 版本号
     Object.assign(this, options)
+    this.initOptions()
+  }
+
+  initOptions() {
     if (!this.targetPath) {
       if (this.template) {
         this.targetPath = path.resolve(process.env.CLI_PATH, TEMPLATE_CACHE)
@@ -42,12 +46,12 @@ class Package {
     }
   }
 
+  // 安装该包
   async install() {
     if (!this.packageVersion) {
       this.packageVersion = await getLatestVersion(this.packageName)
     }
     log.info(`正在从远程安装${this.packageName}@${this.packageVersion}~~`)
-    // 安装
     await npminstall({
       root: this.targetPath,
       pkgs: [
@@ -64,6 +68,7 @@ class Package {
     this.targetPath = this.getCacheFilePath()
   }
 
+  // 判断本地是否存在该包
   exists() {
     if (!this.flag) {
       if (!this.packageVersion) return false
@@ -77,6 +82,7 @@ class Package {
     return pathExists(this.targetPath)
   }
 
+  // 更新该包
   async update() {
     log.verbose(`本地已经存在${this.packageName}`)
     let isUpdated = true
@@ -139,14 +145,15 @@ class Package {
     fs.writeFileSync(jsonFile, JSON.stringify(data))
   }
 
+  // 从缓存目录下的cli.json文件中获取本地版本号
   getCacheVersion() {
-    // 从缓存目录下的cli.json文件中获取本地版本号
     const jsonFile = path.resolve(this.targetPath, JSON_FILE)
     if (!pathExists(jsonFile)) return null
     const versions = require(jsonFile)
     return versions[this.packageName]
   }
 
+  // 获取本地缓存的包路径
   getCacheFilePath() {
     // 缓存中对应的包目录格式如下(node_modules后面的是使用npminstall安装默认的格式): c:/Users/admin/hyf-cli/dependencies/node_modules/_@hyf-cli_init@1.1.2@@hyf-cli\init
     return formatPath(

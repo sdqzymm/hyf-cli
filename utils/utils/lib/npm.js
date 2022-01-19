@@ -21,7 +21,7 @@ function getInputArgs() {
 }
 
 function spawn(command, args, options) {
-  // 兼容windows系统 /c表示静默处理
+  // 封装spawn方法, 使其兼容windows系统 /c表示静默处理
   // mac os: cp.spawn('npm', ['install', ...])
   // windows: cp.spawn('cmd', ['-c', 'npm', 'install', ...])
   const win32 = process.platform === 'win32'
@@ -32,6 +32,7 @@ function spawn(command, args, options) {
 }
 
 function spawnAsync(command, args, options, onError) {
+  // 对spawn再次封装, 使得我们能够等待子进程执行完毕
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, options)
     child.on('error', (e) => {

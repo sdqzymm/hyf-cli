@@ -8,6 +8,7 @@ const { packageMap } = require('./config')
 
 async function exec(...rest) {
   try {
+    // 1. 加载命令所需文件
     const targetPath = process.env.CLI_TARGET_PATH
     const cmd = rest[rest.length - 1]
     const cmdName = cmd.name()
@@ -32,10 +33,10 @@ async function exec(...rest) {
       await pkg.update()
     }
 
-    // 获取入口文件
+    // 2. 获取包的入口文件
     const rootFile = pkg.getRootFilePath()
     if (rootFile) {
-      // 执行命令
+      // 3. 执行入口文件(即执行命令)
       const code = getCode(cmd, rest, rootFile)
       // ps: 子进程会重新加载一份自己的资源, 也就是说require同一个文件, 子进程会当做首次require重新执行一次
       const child = spawn('node', ['-e', code], {
@@ -59,7 +60,7 @@ async function exec(...rest) {
 }
 
 function getCode(cmd, rest, rootFile) {
-  // cmd属性太多, 我们只取一部分传入
+  // cmd对象属性太多, 我们只取一部分传入
   const o = Object.create(null)
   Object.keys(cmd).forEach((key) => {
     if (!key.startsWith('_') && key !== 'parent' && key !== 'options') {

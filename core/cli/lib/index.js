@@ -70,10 +70,12 @@ function registerCommand() {
 }
 
 async function checkRoot() {
+  // 如果是root用户, 降级
   rootCheck()
 }
 
 function checkNodeVersion() {
+  // 检查node版本
   const currentVersion = process.version
   const lowestVersion = constants.LOWEST_NODE_VERSION
   if (semver.lt(currentVersion, lowestVersion)) {
@@ -91,7 +93,7 @@ function checkUserHome() {
 }
 
 function checkEnv() {
-  // 写入userHome目录下的.env文件配置
+  // 写入用户主目录下的.env文件配置
   writeDotenv(userHome)
   // 获取命令行参数
   const args = getInputArgs()

@@ -21,13 +21,11 @@ const FSE = formatPath(
 )
 const EXCLUDE_LIST = ['node_modules']
 const EJS_IGNORE = [
-  'node_modules/**',
-  '**/*.md',
-  '**/*.+(jpg|png|ico)',
+  '**/node_modules/**',
+  '**/*.+(jpg|png|ico|gif)',
   '**/*.d.ts',
   '**/*?(-|.)lock*',
-  '**/*.+(scss|css|sass|less)',
-  'public/**'
+  '**/*.+(scss|css|sass|less)'
 ]
 
 module.exports = {

@@ -5,6 +5,7 @@ const semver = require('semver')
 const urlJoin = require('url-join')
 
 async function getNpmInfo(pkgName) {
+  // 获取npm中的包信息
   if (!pkgName) return null
   const registry = process.env.CLI_REGISTRY
   const npmUrl = urlJoin(registry, pkgName)
@@ -13,6 +14,7 @@ async function getNpmInfo(pkgName) {
 }
 
 async function getVersions(pkgName) {
+  // 获取版本号信息
   const data = await getNpmInfo(pkgName)
   if (data && data.versions) {
     const versions = Object.keys(data.versions)
@@ -21,6 +23,7 @@ async function getVersions(pkgName) {
 }
 
 async function getLatestVersion(pkgName) {
+  // 获取最新版本号
   const versions = await getVersions(pkgName)
   if (versions && versions.length) {
     sortVersions(versions)
@@ -28,13 +31,8 @@ async function getLatestVersion(pkgName) {
   return versions[0]
 }
 
-/**
- * 获取仓库中最新的包版本号, 如果大于本地版本, 则返回
- * @param pkgName 包名
- * @param currentVersion 当前本地版本
- * @returns
- */
 async function getSemverVersion(pkgName, currentVersion) {
+  // 获取大于本地版本的版本号(可供更新的版本号)
   const version = await getLatestVersion(pkgName)
   if (version && semver.gt(version, currentVersion)) {
     return version

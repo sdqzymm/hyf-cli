@@ -28,7 +28,7 @@ const {
 
 class InitCommand extends Command {
   init() {
-    this.projectName = this._argv[0] ?? ''
+    this.initName = this._argv[0] ?? ''
     this.force = !!this._opts.force
   }
 
@@ -42,7 +42,7 @@ class InitCommand extends Command {
       await this.downloadTemplate()
       // 3. 安装模板
       await this.installTemplate()
-      // 4. 同时进行安装依赖, 模板渲染
+      // 4. 同时进行安装依赖(子进程), 模板渲染
       await Promise.all([this.installDependency(), this.ejsRender(EJS_IGNORE)])
       // 5. 启动项目
       await this.startProject()
@@ -83,7 +83,7 @@ class InitCommand extends Command {
       }
     }
     // 向用户获取项目/组件的基本信息
-    return await this.getProjectInfo()
+    return await this.getProjectOrComponentInfo()
   }
 
   async downloadTemplate() {
@@ -105,6 +105,7 @@ class InitCommand extends Command {
       log.success(`${name} 下载成功`)
     } else {
       const isUpdated = await pkg.update()
+      this.templateInfo.version = pkg.packageVersion
       if (isUpdated) {
         log.success(`${name} 更新成功`)
       } else {
@@ -122,10 +123,10 @@ class InitCommand extends Command {
       }
       const type = this.templateInfo.type
       if (type === NORMAL) {
-        // 标准模板安装
+        // 模板的标准安装
         await this.installNormalTemplate()
       } else if (type === CUSTOM) {
-        // 自定义模板安装
+        // 模板的自定义安装
         await this.installCustomTemplate()
       } else {
         throw new Error(`无法识别的模板类型 ${type}`)
@@ -136,6 +137,13 @@ class InitCommand extends Command {
   }
 
   async ejsRender(ignore) {
+    let ignore_ = this.templateInfo.ignore
+    if (typeof ignore_ === 'string') {
+      ignore_ = [ignore_]
+    }
+    if (Array.isArray(ignore_) && ignore_.length) {
+      ignore = ignore.concat(ignore_)
+    }
     return new Promise((resolve, reject) => {
       glob(
         '**',
@@ -152,8 +160,9 @@ class InitCommand extends Command {
               ejs
                 .renderFile(file, this.projectInfo)
                 .then((res) => fse.writeFileSync(file, res))
+                .catch((e) => reject(e))
             })
-          ).catch((e) => reject(e))
+          )
           resolve()
         }
       )
@@ -183,8 +192,8 @@ class InitCommand extends Command {
     })
   }
 
-  async getProjectInfo() {
-    // 1. 选择创建项目或组件
+  async getProjectOrComponentInfo() {
+    // 通过命令行向用户提问, 最终返回项目或组件信息
     const { type } = await inquirer.prompt({
       type: 'list',
       name: 'type',
@@ -195,70 +204,88 @@ class InitCommand extends Command {
         { name: '组件', value: COMPONENT }
       ]
     })
-    let project = {}
-    if (type === PROJECT) {
-      // 2. 获取项目的基本信息
-      project = await inquirer.prompt([
-        {
-          type: 'input',
-          message: '请输入项目名称',
-          name: 'name',
-          default: this.projectName,
-          validate: function (v) {
-            const done = this.async()
-            setTimeout(() => {
-              if (!PROJECT_NAME_REG.test(v)) {
-                done(
-                  dedent`请输入合法的项目名称, 规则如下:
-                1. 只允许出现英文字母, 数字, -, _
-                2. 首字符必须为英文字母
-                3. 尾字符必须为英文字母或数字
-                4. -, _后面必须跟英文字母且两者不能同时出现
-                举例:
-                    a a1 abc a-b a_b a-b-c a-b1-c1 a_b1_c1`
-                )
-                return
-              }
-              done(null, true)
-            }, 0)
-          },
-          filter: (v) => {
-            return paramCase(v)
-          }
+    this.templateList = this.templateList.filter((template) =>
+      template.tag.includes(type)
+    )
+    const title = type === PROJECT ? '项目' : '组件'
+    let info = {}
+    const promptInfo = [
+      {
+        type: 'input',
+        message: `请输入${title}名称`,
+        name: 'name',
+        default: this.initName,
+        validate: function (v) {
+          const done = this.async()
+          setTimeout(() => {
+            if (!PROJECT_NAME_REG.test(v)) {
+              done(
+                dedent`请输入合法的${title}名称, 规则如下:
+              1. 只允许出现英文字母, 数字, -, _
+              2. 首字符必须为英文字母
+              3. 尾字符必须为英文字母或数字
+              4. -, _后面必须跟英文字母且两者不能同时出现
+              举例:
+                  a a1 abc a-b a_b a-b-c a-b1-c1 a_b1_c1`
+              )
+              return
+            }
+            done(null, true)
+          }, 0)
         },
-        {
-          type: 'input',
-          name: 'version',
-          message: '请输入版本号',
-          default: '1.0.0',
-          validate: function (v) {
-            const done = this.async()
-            setTimeout(() => {
-              if (!semver.valid(v)) {
-                done('请输入合法的版本号')
-                return
-              }
-              done(null, true)
-            }, 0)
-          },
-          filter: (v) => {
-            const version = semver.valid(v)
-            if (version) return version
-          }
-        },
-        {
-          type: 'list',
-          name: 'template',
-          message: '请选择项目模板',
-          choices: this.createTemplateChoices()
+        filter: (v) => {
+          return paramCase(v)
         }
-      ])
-    } else {
-      // 3. 获取组件的基本信息
+      },
+      {
+        type: 'input',
+        name: 'version',
+        message: '请输入版本号',
+        default: '1.0.0',
+        validate: function (v) {
+          const done = this.async()
+          setTimeout(() => {
+            if (!semver.valid(v)) {
+              done('请输入合法的版本号')
+              return
+            }
+            done(null, true)
+          }, 0)
+        },
+        filter: (v) => {
+          const version = semver.valid(v)
+          if (version) return version
+        }
+      },
+      {
+        type: 'list',
+        name: 'template',
+        message: `请选择${title}模板`,
+        choices: this.createTemplateChoices()
+      }
+    ]
+    if (type === COMPONENT) {
+      promptInfo.push({
+        type: 'input',
+        name: 'description',
+        message: `请输入${title}描述信息`,
+        default: this.initName,
+        validate: function (v) {
+          const done = this.async()
+          setTimeout(() => {
+            if (!v) {
+              done(`请输入${title}描述信息`)
+              return
+            }
+            done(null, true)
+          }, 0)
+        }
+      })
     }
+    info = await inquirer.prompt(promptInfo)
 
-    project.type = type
-    return project
+    info.type = type
+    return info
   }
 
   createTemplateChoices() {
@@ -268,18 +295,20 @@ class InitCommand extends Command {
     }))
   }
 
-  async installNormalTemplate() {
+  async installNormalTemplate(code) {
     // 将我们下载的标准模板中的template文件夹中的内容全部拷贝到项目根目录(当前目录)
     const name = this.templateInfo.name
-    const templatePath = formatPath(
-      path.resolve(this.pkg.targetPath, 'template')
-    )
     const spinner = ora(`正在安装${name}`).start()
-    // 我们要起一个子进程去执行, 要重新引入fs-extra(因为子进程有自己的资源, 父进程require的模块是不起作用的)
-    const code = this.getCode(templatePath, CWD, FSE)
-    const installTemplateCommand = ['node', '-e', code]
+    if (!code) {
+      const templatePath = formatPath(
+        path.resolve(this.pkg.targetPath, 'template')
+      )
+      // 我们起一个子进程去执行, 要重新引入fs-extra(因为子进程有自己的资源, 父进程require的模块是不起作用的)
+      code = this.getCode(templatePath, CWD, FSE)
+    }
+    const execCodeCommand = ['node', '-e', code]
     await execCommand(
-      installTemplateCommand,
+      execCodeCommand,
       {
         CWD
       },
@@ -291,7 +320,25 @@ class InitCommand extends Command {
     spinner.succeed(`${name}安装成功`)
   }
 
-  async installCustomTemplate() {}
+  async installCustomTemplate() {
+    // 执行模板包的入口文件, 用户可以在入口文件中自定义安装流程
+    const rootFile = this.pkg.getRootFilePath()
+    if (fse.existsSync(rootFile)) {
+      const templatePath = formatPath(
+        path.resolve(this.pkg.targetPath, 'template')
+      )
+      const options = {
+        dest: CWD,
+        source: templatePath,
+        templateInfo: this.templateInfo,
+        projectInfo: this.projectInfo
+      }
+      const code = `require('${rootFile}')(${JSON.stringify(options)})`
+      await this.installNormalTemplate(code)
+    } else {
+      throw new Error('自定义模板安装流程的入口文件不存在')
+    }
+  }
 
   getCode(templatePath, targetPath, fse) {
     return `const fse = require('${fse}');fse.emptyDirSync('${targetPath}');fse.copySync('${templatePath}', '${targetPath}')`

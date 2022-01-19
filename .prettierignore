@@ -1,0 +1,29 @@
+# Ignore folders
+/node_modules/**
+**/**/node_modules/**
+**/**/__tests__/**
+
+# Ignore file
+.eslintrc.js
+*.min.js
+*.map
+.local
+.output.js
+
+# Ignore images (when inadvertently opened by user)
+*.gif
+*.jpeg
+*.jpg
+*.png
+*.svg
+*.tif
+*.tiff
+
+# Ignore fonts (when inadvertently opened by user)
+*.eot
+*.svg
+*.ttf
+*.woff
+*.woff2
+
+

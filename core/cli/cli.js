@@ -1,10 +1,10 @@
 #! /usr/bin/env node
 
-"use strict";
-const path = require('path');
-const importLocal = require("import-local");
+'use strict'
+const importLocal = require('import-local')
+
 if (importLocal(__filename)) {
-  require("npmlog").info("hyf", "正在使用 hyf-cli 本地版本");
+  require('@hyf-cli/log').info('hyf', '正在使用 hyf-cli 本地版本')
 } else {
-  require(".")(process.argv.slice(2));
+  require('./lib/index')(process.argv.slice(2))
 }

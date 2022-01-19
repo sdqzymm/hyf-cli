@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const package = require('..');
+const Package = require('..')
 
 describe('@hyf-cli/package', () => {
-    it('needs tests');
-});
+  it('needs tests')
+})

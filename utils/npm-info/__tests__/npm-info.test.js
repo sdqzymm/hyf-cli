@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const npmInfo = require('..');
+const npmInfo = require('..')
 
-describe('npm-info', () => {
-    it('needs tests');
-});
+describe('@hyf-cli/npm-info', () => {
+  it('needs tests')
+})

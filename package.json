@@ -1,31 +1,46 @@
 {
   "name": "hyf-cli",
-  "version": "0.0.0",
-  "description": "hyf-cli 帮助快速开发项目",
+  "version": "1.1.0",
+  "description": "脚手架",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prettier": "prettier --write .",
     "prepare": "husky install",
+    "precommit": "lint-staged",
     "commit": "cz"
   },
-  "keywords": [
-    "cli",
-    "脚手架",
-    "自动发布",
-    "git规范"
-  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sdqzymm/hyf-cli.git"
+  },
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sdqzymm/hyf-cli/issues"
+  },
+  "homepage": "https://github.com/sdqzymm/hyf-cli#readme",
   "devDependencies": {
-    "@commitlint/cli": "^13.2.0",
-    "@commitlint/config-conventional": "^13.2.0",
+    "@commitlint/cli": "^16.0.1",
+    "@commitlint/config-conventional": "^16.0.0",
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.5.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "husky": "^7.0.0",
-    "lerna": "^4.0.0"
+    "lerna": "^4.0.0",
+    "lint-staged": "^12.1.4",
+    "prettier": "^2.5.1"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }

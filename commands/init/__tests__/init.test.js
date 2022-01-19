@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const init = require('..');
+const init = require('..')
 
 describe('@hyf-cli/init', () => {
-    it('needs tests');
-});
+  it('needs tests')
+})

@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const utils = require('..');
+const utils = require('..')
 
 describe('@hyf-cli/utils', () => {
-    it('needs tests');
-});
+  it('needs tests')
+})

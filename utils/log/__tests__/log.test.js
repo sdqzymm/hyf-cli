@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const log = require('..');
+const log = require('..')
 
-describe('log', () => {
-    it('needs tests');
-});
+describe('@hyf-cli/log', () => {
+  it('needs tests')
+})

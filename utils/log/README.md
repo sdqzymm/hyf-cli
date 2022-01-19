@@ -1,11 +1,11 @@
-# `log`
+# `@hyf-cli/log`
 
 > TODO: description
 
 ## Usage
 
 ```
-const log = require('log');
+const log = require('@hyf-cli/log');
 
 // TODO: DEMONSTRATE API
 ```

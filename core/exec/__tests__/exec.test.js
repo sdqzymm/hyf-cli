@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const exec = require('..');
+const exec = require('..')
 
 describe('@hyf-cli/exec', () => {
-    it('needs tests');
-});
+  it('needs tests')
+})

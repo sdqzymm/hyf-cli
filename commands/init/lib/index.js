@@ -151,7 +151,8 @@ class InitCommand extends Command {
           cwd: CWD,
           nodir: true,
           absolute: true,
-          ignore
+          ignore,
+          dot: true
         },
         async (err, files) => {
           if (err) reject(err)

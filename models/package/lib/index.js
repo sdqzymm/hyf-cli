@@ -39,7 +39,10 @@ class Package {
       if (this.template) {
         this.targetPath = path.resolve(process.env.CLI_PATH, TEMPLATE_CACHE)
       } else {
-        this.targetPath = path.resolve(process.env.CLI_PATH, DEPENDENCE_CACHE)
+        this.targetPath = path.resolve(
+          this.cacheDir || process.env.CLI_PATH,
+          this.cachePath || DEPENDENCE_CACHE
+        )
       }
       this.flag = false
       this.packageVersion = this.packageVersion ?? this.getCacheVersion()

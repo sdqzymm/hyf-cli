@@ -7,7 +7,7 @@ const urlJoin = require('url-join')
 async function getNpmInfo(pkgName) {
   // 获取npm中的包信息
   if (!pkgName) return null
-  const registry = process.env.CLI_REGISTRY
+  const registry = process.env.CLI_REGISTRY || 'https://registry.npmjs.org'
   const npmUrl = urlJoin(registry, pkgName)
   const data = await axios.get(npmUrl)
   return data.data

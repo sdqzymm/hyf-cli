@@ -30,6 +30,8 @@ class Package {
     // targetPath: 传表示使用指定目录,flag为true, 不传表示使用缓存目录, flag为false
     // template: true表示该包为模板
     // packageVersion: 版本号
+    // customUpdate: 自定义更新信息
+    // customInstall: 自定义安装信息
     Object.assign(this, options)
     this.initOptions()
   }
@@ -54,7 +56,10 @@ class Package {
     if (!this.packageVersion) {
       this.packageVersion = await getLatestVersion(this.packageName)
     }
-    log.info(`正在从远程安装${this.packageName}@${this.packageVersion}~~`)
+    log.info(
+      this.customInstall ??
+        `正在从远程安装${this.packageName}@${this.packageVersion}~~`
+    )
     await npminstall({
       root: this.targetPath,
       pkgs: [
@@ -95,8 +100,9 @@ class Package {
     )
     if (semverVersion) {
       // 更新
-      log.verbose(
-        `${this.packageName}最新版本为 ${semverVersion} 将下载最新版本使用`
+      log.info(
+        this.customUpdate ??
+          `${this.packageName}最新版本为 ${semverVersion} 将下载最新版本使用`
       )
       // 删除旧版本并安装新版本
       const dir = path.dirname(this.getCacheFilePath())

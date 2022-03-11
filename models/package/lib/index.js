@@ -32,6 +32,7 @@ class Package {
     // packageVersion: 版本号
     // customUpdate: 自定义更新信息
     // customInstall: 自定义安装信息
+    // registry: 自定义仓库
     Object.assign(this, options)
     this.initOptions()
   }
@@ -68,7 +69,7 @@ class Package {
           version: this.packageVersion
         }
       ],
-      registry: process.env.CLI_REGISTRY
+      registry: this.registry ?? process.env.CLI_REGISTRY
     })
     // 在缓存目录中写入一个json文件, 存储包名和版本号的对应关系
     this.writeJson()

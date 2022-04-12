@@ -2,4 +2,4 @@
 
 脚手架
 
-入口: core/cli.js
+入口: core/cli/cli.js
